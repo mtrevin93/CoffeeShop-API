@@ -6,7 +6,7 @@ using CoffeeShop.Models;
 
 namespace CoffeeShop.Repositories
 {
-    public class CoffeeRepository
+    public class CoffeeRepository : ICoffeeRepository
     {
         private readonly string _connectionString;
         public CoffeeRepository(IConfiguration configuration)
@@ -26,7 +26,8 @@ namespace CoffeeShop.Repositories
                 conn.Open();
                 using (var cmd = conn.CreateCommand())
                 {
-                    cmd.CommandText = @"SELECT c.Id, c.Title, c.BeanVarietyId, bv.[Name], bv.Region, bv.Notes FROM Coffee c
+                    cmd.CommandText = @"SELECT c.Id AS CoffeeId, c.Title, c.BeanVarietyId, bv.[Name], bv.Region, bv.Notes 
+                                        FROM Coffee c
                                         JOIN BeanVariety bv
                                         ON c.BeanVarietyId = bv.Id";
                     using (var reader = cmd.ExecuteReader())
@@ -36,13 +37,13 @@ namespace CoffeeShop.Repositories
                         {
                             var coffee = new Coffee()
                             {
-                                Id = reader.GetInt32(reader.GetOrdinal("c.Id")),
-                                Title = reader.GetString(reader.GetOrdinal("c.Title")),
-                                BeanVarietyId = reader.GetInt32(reader.GetOrdinal("c.BeanVarietyId")),
+                                Id = reader.GetInt32(reader.GetOrdinal("CoffeeId")),
+                                Title = reader.GetString(reader.GetOrdinal("Title")),
+                                BeanVarietyId = reader.GetInt32(reader.GetOrdinal("BeanVarietyId")),
                                 BeanVariety = new BeanVariety
                                 {
-                                    Name = reader.GetString(reader.GetOrdinal("bv.[Name]")),
-                                    Region = reader.GetString(reader.GetOrdinal("bv.Region"))
+                                    Name = reader.GetString(reader.GetOrdinal("Name")),
+                                    Region = reader.GetString(reader.GetOrdinal("Region"))
                                 }
                             };
                             if (!reader.IsDBNull(reader.GetOrdinal("Notes")))
@@ -52,7 +53,7 @@ namespace CoffeeShop.Repositories
                             coffees.Add(coffee);
 
                         }
-                    return coffees;
+                        return coffees;
                     }
                 }
             }
@@ -60,44 +61,44 @@ namespace CoffeeShop.Repositories
 
         public Coffee Get(int id)
         {
-                using (var conn = Connection)
+            using (var conn = Connection)
+            {
+                conn.Open();
+                using (var cmd = conn.CreateCommand())
                 {
-                    conn.Open();
-                    using (var cmd = conn.CreateCommand())
-                    {
-                        cmd.CommandText = @"SELECT c.Id, c.Title, c.BeanVarietyId, bv.[Name], bv.Region, bv.Notes FROM Coffee c
+                    cmd.CommandText = @"SELECT c.Id, c.Title, c.BeanVarietyId, bv.[Name], bv.Region, bv.Notes FROM Coffee c
                                           JOIN BeanVariety bv
                                           ON c.BeanVarietyId = bv.Id
                                           WHERE c.Id = @id";
 
-                        cmd.Parameters.AddWithValue("@id", id);
+                    cmd.Parameters.AddWithValue("@id", id);
 
-                        using (var reader = cmd.ExecuteReader())
-                        {
+                    using (var reader = cmd.ExecuteReader())
+                    {
                         var coffee = new Coffee();
 
-                            if (reader.Read())
+                        if (reader.Read())
+                        {
                             {
+                                coffee.Id = reader.GetInt32(reader.GetOrdinal("Id"));
+                                coffee.Title = reader.GetString(reader.GetOrdinal("Title"));
+                                coffee.BeanVarietyId = reader.GetInt32(reader.GetOrdinal("BeanVarietyId"));
+                                coffee.BeanVariety = new BeanVariety
                                 {
-                                coffee.Id = reader.GetInt32(reader.GetOrdinal("c.Id"));
-                                coffee.Title = reader.GetString(reader.GetOrdinal("c.Title"));
-                                coffee.BeanVarietyId = reader.GetInt32(reader.GetOrdinal("c.BeanVarietyId"));
-                                    coffee.BeanVariety = new BeanVariety
-                                    {
-                                        Name = reader.GetString(reader.GetOrdinal("bv.[Name]")),
-                                        Region = reader.GetString(reader.GetOrdinal("bv.Region"))
-                                    };
+                                    Name = reader.GetString(reader.GetOrdinal("Name")),
+                                    Region = reader.GetString(reader.GetOrdinal("Region"))
                                 };
-                                if (!reader.IsDBNull(reader.GetOrdinal("Notes")))
-                                {
-                                    coffee.BeanVariety.Notes = reader.GetString(reader.GetOrdinal("Notes"));
-                                }
+                            };
+                            if (!reader.IsDBNull(reader.GetOrdinal("Notes")))
+                            {
+                                coffee.BeanVariety.Notes = reader.GetString(reader.GetOrdinal("Notes"));
                             }
-                            return coffee;
                         }
+                        return coffee;
                     }
                 }
             }
+        }
 
         public void Add(Coffee coffee)
         {
