@@ -79,9 +79,9 @@ namespace CoffeeShop.Repositories
                             if (reader.Read())
                             {
                                 {
-                                    coffee.Id = reader.GetInt32(reader.GetOrdinal("c.Id")),
-                                    coffee.Title = reader.GetString(reader.GetOrdinal("c.Title")),
-                                    coffee.BeanVarietyId = reader.GetInt32(reader.GetOrdinal("c.BeanVarietyId")),
+                                coffee.Id = reader.GetInt32(reader.GetOrdinal("c.Id"));
+                                coffee.Title = reader.GetString(reader.GetOrdinal("c.Title"));
+                                coffee.BeanVarietyId = reader.GetInt32(reader.GetOrdinal("c.BeanVarietyId"));
                                     coffee.BeanVariety = new BeanVariety
                                     {
                                         Name = reader.GetString(reader.GetOrdinal("bv.[Name]")),
@@ -107,21 +107,13 @@ namespace CoffeeShop.Repositories
                 using (var cmd = conn.CreateCommand())
                 {
                     cmd.CommandText = @"
-                        INSERT INTO BeanVariety ([Name], Region, Notes)
+                        INSERT INTO Coffee (Title, BeanVarietyId)
                         OUTPUT INSERTED.ID
-                        VALUES (@name, @region, @notes)";
-                    cmd.Parameters.AddWithValue("@name", variety.Name);
-                    cmd.Parameters.AddWithValue("@region", variety.Region);
-                    if (variety.Notes == null)
-                    {
-                        cmd.Parameters.AddWithValue("@notes", DBNull.Value);
-                    }
-                    else
-                    {
-                        cmd.Parameters.AddWithValue("@notes", variety.Notes);
-                    }
+                        VALUES (@title, @beanVarietyId)";
+                    cmd.Parameters.AddWithValue("@title", coffee.Title);
+                    cmd.Parameters.AddWithValue("@beanVarietyId", coffee.BeanVarietyId);
 
-                    variety.Id = (int)cmd.ExecuteScalar();
+                    coffee.Id = (int)cmd.ExecuteScalar();
                 }
             }
         }
