@@ -126,22 +126,13 @@ namespace CoffeeShop.Repositories
                 using (var cmd = conn.CreateCommand())
                 {
                     cmd.CommandText = @"
-                        UPDATE BeanVariety 
-                           SET [Name] = @name, 
-                               Region = @region, 
-                               Notes = @notes
+                        UPDATE Coffee 
+                           SET Title = @title, 
+                               BeanVarietyId = @beanVarietyId, 
                          WHERE Id = @id";
-                    cmd.Parameters.AddWithValue("@id", variety.Id);
-                    cmd.Parameters.AddWithValue("@name", variety.Name);
-                    cmd.Parameters.AddWithValue("@region", variety.Region);
-                    if (variety.Notes == null)
-                    {
-                        cmd.Parameters.AddWithValue("@notes", DBNull.Value);
-                    }
-                    else
-                    {
-                        cmd.Parameters.AddWithValue("@notes", variety.Notes);
-                    }
+                    cmd.Parameters.AddWithValue("@id", coffee.Id);
+                    cmd.Parameters.AddWithValue("@name", coffee.Title);
+                    cmd.Parameters.AddWithValue("@region", coffee.BeanVarietyId);
 
                     cmd.ExecuteNonQuery();
                 }
