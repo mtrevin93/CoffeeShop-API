@@ -56,7 +56,7 @@ namespace CoffeeShop.Controllers
             }
 
             _coffeeRepository.Update(coffee);
-            return NoContent();
+            return Get(id);
         }
 
         // https://localhost:5001/api/coffee/5
@@ -64,7 +64,7 @@ namespace CoffeeShop.Controllers
         public IActionResult Delete(int id)
         {
             _coffeeRepository.Delete(id);
-            return NoContent();
+            return StatusCode(418);
         }
     }
 }
